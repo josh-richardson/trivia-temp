@@ -1,3 +1,23 @@
-# MS Visual Studio
+# User-specific
 *.suo
-*.csproj.user
+*.user
+
+# Build results
+[Dd]ebug/
+[Rr]elease/
+[Bb]in/
+[Oo]bj/
+
+# ReSharper
+_ReSharper*/
+*.[Rr]e[Ss]harper
+*.DotSettings.user
+
+# NCrunch
+_NCrunch_*
+.*crunch*.local.xml
+*.ncrunchsolution
+*.ncrunchproject
+
+# NuGet
+packages/
