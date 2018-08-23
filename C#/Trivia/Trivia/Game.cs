@@ -10,11 +10,8 @@ namespace UglyTrivia
     {
         List<Player> Players = new List<Player>();
 
-        LinkedList<string> popQuestions = new LinkedList<string>();
-        LinkedList<string> scienceQuestions = new LinkedList<string>();
-        LinkedList<string> sportsQuestions = new LinkedList<string>();
-        LinkedList<string> rockQuestions = new LinkedList<string>();
-
+        LinkedList<Question> questions = new LinkedList<Question>();
+        
         private Player _currentPlayer;
         private bool _isGettingOutOfPenaltyBox;
 
@@ -26,16 +23,11 @@ namespace UglyTrivia
         {
             for (int i = 0; i < 50; i++)
             {
-                popQuestions.AddLast("Pop Question " + i);
-                scienceQuestions.AddLast(("Science Question " + i));
-                sportsQuestions.AddLast(("Sports Question " + i));
-                rockQuestions.AddLast(CreateRockQuestion(i));
+                questions.AddLast(new Question() { QuestionBody = "Pop Question " + i, Type = QuestionType.Pop });
+                questions.AddLast(new Question() { QuestionBody = "Science Question " + i, Type = QuestionType.Science });
+                questions.AddLast(new Question() { QuestionBody = "Sports Question " + i, Type = QuestionType.Sports});
+                questions.AddLast(new Question() { QuestionBody = "Rock Question " + i, Type = QuestionType.Rock });
             }
-        }
-
-        public String CreateRockQuestion(int index)
-        {
-            return "Rock Question " + index;
         }
 
         public bool AddPlayer(String playerName)
@@ -49,11 +41,6 @@ namespace UglyTrivia
             return true;
         }
 
-        public int GetPlayerCount()
-        {
-            return Players.Count;
-        }
-
         public void Roll(int roll)
         {
             Console.WriteLine(_currentPlayer.Name + " is the current player");
@@ -64,49 +51,17 @@ namespace UglyTrivia
                 Console.WriteLine(_currentPlayer.Name + " is " + (_isGettingOutOfPenaltyBox ? "" : "not ") + "getting out of the penalty box");
                 if (!_isGettingOutOfPenaltyBox) return;
             }
-            IncrementPlayerPosition(roll);
+            _currentPlayer.IncrementPlayerPosition(roll, NumberOfPlacesOnBoard);
+            Console.WriteLine("The category is " + (QuestionType)(_currentPlayer.Place % 4));
             AskQuestion();
         }
 
-        private void IncrementPlayerPosition(int roll)
-        {
-            _currentPlayer.Place += roll;
-            if (_currentPlayer.Place >= NumberOfPlacesOnBoard)
-                _currentPlayer.Place -= NumberOfPlacesOnBoard;
-            Console.WriteLine(_currentPlayer.Name
-                              + "'s new location is "
-                              + _currentPlayer.Place);
-            Console.WriteLine("The category is " + GetCurrentCategory());
-        }
-
-
         private void AskQuestion()
         {
-            var category = GetCurrentCategory();
-            var testDic = new Dictionary<string, LinkedList<string>>
-            {
-                {"Pop", popQuestions}, {"Science", scienceQuestions}, {"Sports", sportsQuestions}, {"Rock", rockQuestions}
-            };
-            var dictEntry = (testDic[category]);
-            Console.WriteLine(dictEntry.First());
-            dictEntry.RemoveFirst();
-        }
-
-
-        private String GetCurrentCategory()
-        {
-            var categorySequence = _currentPlayer.Place % 4;
-            switch (categorySequence)
-            {
-                case 0:
-                    return "Pop";
-                case 1:
-                    return "Science";
-                case 2:
-                    return "Sports";
-                default:
-                    return "Rock";
-            }
+            var category = (QuestionType)(_currentPlayer.Place % 4);
+            var dictEntry = (questions.First(x => x.Type == category));
+            Console.WriteLine(dictEntry.QuestionBody);
+            questions.Remove(dictEntry);
         }
 
         public bool CorrectPlayerAnswer()
@@ -116,22 +71,14 @@ namespace UglyTrivia
                 MoveNextPlayer();
                 return true;
             }
-
             Console.WriteLine("Answer was correct!!!!");
-            IncrementScore();
-            bool winner = HasCurrentPlayerWon();
+            _currentPlayer.IncrementScore();
+            var winner = _currentPlayer.HasWon(CoinsToWin);
             MoveNextPlayer();
             return winner;
         }
 
-        private void IncrementScore()
-        {
-            _currentPlayer.Coins++;
-            Console.WriteLine(_currentPlayer.Name
-                              + " now has "
-                              + _currentPlayer.Coins
-                              + " Gold Coins.");
-        }
+        
 
         private void MoveNextPlayer()
         {
@@ -147,10 +94,6 @@ namespace UglyTrivia
             return true;
         }
 
-
-        private bool HasCurrentPlayerWon()
-        {
-            return _currentPlayer.Coins != CoinsToWin;
-        }
+       
     }
 }
