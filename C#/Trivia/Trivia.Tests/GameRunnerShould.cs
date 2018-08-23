@@ -8,13 +8,12 @@ namespace Trivia.Tests
     public class GameRunnerShould
     {
         private TextWriter _output;
-
+        StringReader input = new StringReader(Environment.NewLine);
         [SetUp]
         public void SetUp()
         {
-            var input = new StringReader(Environment.NewLine);
+            
             Console.SetIn(input);
-
             _output = new StringWriter();
             Console.SetOut(_output);
         }
@@ -22,10 +21,10 @@ namespace Trivia.Tests
         [Test]
         public void Run_until_there_is_a_winner()
         {
-            GameRunner.Main(new string[] {});
-
-            var expectedOutput = "";  // TODO: Work out what this is
+            GameRunner.Main(new[] {"test"});
+            var expectedOutput = File.ReadAllText(Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.MyDocuments), "output.txt"));
             Assert.That(_output.ToString(), Is.EqualTo(expectedOutput));
+            //File.WriteAllText(Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.MyDocuments), "output.txt"), _output.ToString());
         }
     }
 }
