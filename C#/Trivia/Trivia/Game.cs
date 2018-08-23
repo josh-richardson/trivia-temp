@@ -41,11 +41,6 @@ namespace UglyTrivia
             return "Rock Question " + index;
         }
 
-        public bool CanStartGame()
-        {
-            return (GetPlayerCount() >= 2);
-        }
-
         public bool AddPlayer(String playerName)
         {
             Players.Add(playerName);
@@ -67,30 +62,14 @@ namespace UglyTrivia
         {
             Console.WriteLine(Players[currentPlayer] + " is the current player");
             Console.WriteLine("They have rolled a " + roll);
-
             if (IsInPenaltyBox[currentPlayer])
             {
-                if (roll % 2 != 0)
-                {
-                    isGettingOutOfPenaltyBox = true;
-
-                    Console.WriteLine(Players[currentPlayer] + " is getting out of the penalty box");
-                    IncrementPlayerPosition(roll);
-                    askQuestion();
-                }
-                else
-                {
-                    Console.WriteLine(Players[currentPlayer] + " is not getting out of the penalty box");
-                    isGettingOutOfPenaltyBox = false;
-                }
-
+                isGettingOutOfPenaltyBox = (roll % 2 != 0);
+                Console.WriteLine(Players[currentPlayer] + " is " + (isGettingOutOfPenaltyBox ? "" : "not ") + "getting out of the penalty box");
+                if (!isGettingOutOfPenaltyBox) return;
             }
-            else
-            {
-                IncrementPlayerPosition(roll);
-                askQuestion();
-            }
-
+            IncrementPlayerPosition(roll);
+            AskQuestion();
         }
 
         private void IncrementPlayerPosition(int roll)
@@ -106,79 +85,49 @@ namespace UglyTrivia
             Console.WriteLine("The category is " + GetCurrentCategory());
         }
 
-        
 
-        private void askQuestion()
+        private void AskQuestion()
         {
-            if (GetCurrentCategory() == "Pop")
+            var category = GetCurrentCategory();
+            var testDic = new Dictionary<string, LinkedList<string>>
             {
-                GetQuestion(popQuestions);
-            }
-            if (GetCurrentCategory() == "Science")
-            {
-                GetQuestion(scienceQuestions);
-            }
-            if (GetCurrentCategory() == "Sports")
-            {
-                GetQuestion(sportsQuestions);
-            }
-            if (GetCurrentCategory() == "Rock")
-            {
-                GetQuestion(rockQuestions);
-            }
+                {"Pop", popQuestions}, {"Science", scienceQuestions}, {"Sports", sportsQuestions}, {"Rock", rockQuestions}
+            };
+            var dictEntry = (testDic[category]);
+            Console.WriteLine(dictEntry.First());
+            dictEntry.RemoveFirst();
         }
 
-        private void GetQuestion(LinkedList<string> questionStack)
-        {
-            Console.WriteLine(questionStack.First());
-            questionStack.RemoveFirst();
-        }
 
         private String GetCurrentCategory()
         {
-            if (Places[currentPlayer] == 0) return "Pop";
-            if (Places[currentPlayer] == 4) return "Pop";
-            if (Places[currentPlayer] == 8) return "Pop";
-            if (Places[currentPlayer] == 1) return "Science";
-            if (Places[currentPlayer] == 5) return "Science";
-            if (Places[currentPlayer] == 9) return "Science";
-            if (Places[currentPlayer] == 2) return "Sports";
-            if (Places[currentPlayer] == 6) return "Sports";
-            if (Places[currentPlayer] == 10) return "Sports";
-            return "Rock";
+            var categorySequence = Places[currentPlayer] % 4;
+            switch (categorySequence)
+            {
+                case 0:
+                    return "Pop";
+                case 1:
+                    return "Science";
+                case 2:
+                    return "Sports";
+                default:
+                    return "Rock";
+            }
         }
 
         public bool CorrectPlayerAnswer()
         {
-            if (IsInPenaltyBox[currentPlayer])
+            if (IsInPenaltyBox[currentPlayer] && !isGettingOutOfPenaltyBox)
             {
-                if (isGettingOutOfPenaltyBox)
-                {
-                    Console.WriteLine("Answer was correct!!!!");
-                    IncrementScore();
-
-                    bool winner = hasCurrentPlayerWon();
-                    MoveNextPlayer();
-
-                    return winner;
-                }
-                else
-                {
-                    MoveNextPlayer();
-                    return true;
-                }
-            }
-            else
-            {
-
-                Console.WriteLine("Answer was corrent!!!!");
-                IncrementScore();
-
-                bool winner = hasCurrentPlayerWon();
                 MoveNextPlayer();
-
-                return winner;
+                return true;
             }
+
+            Console.WriteLine("Answer was correct!!!!");
+            IncrementScore();
+            bool winner = HasCurrentPlayerWon();
+            MoveNextPlayer();
+            return winner;
         }
 
         private void IncrementScore()
@@ -208,7 +157,7 @@ namespace UglyTrivia
         }
 
 
-        private bool hasCurrentPlayerWon()
+        private bool HasCurrentPlayerWon()
         {
             return !(Coins[currentPlayer] == coinsToWin);
         }
