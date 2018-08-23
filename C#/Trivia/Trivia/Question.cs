@@ -10,6 +10,11 @@ namespace Trivia
     {
         public QuestionType Type { get; set; }
         public string QuestionBody { get; set; }
+
+        public static int GetNumberOfTypes()
+        {
+            return Enum.GetNames(typeof(QuestionType)).Length;
+        }
     }
 
     enum QuestionType
@@ -18,5 +23,6 @@ namespace Trivia
         Science = 1,
         Sports = 2,
         Rock = 3
+        //Joshua = 4
     }
 }

@@ -27,6 +27,7 @@ namespace UglyTrivia
                 questions.AddLast(new Question() { QuestionBody = "Science Question " + i, Type = QuestionType.Science });
                 questions.AddLast(new Question() { QuestionBody = "Sports Question " + i, Type = QuestionType.Sports});
                 questions.AddLast(new Question() { QuestionBody = "Rock Question " + i, Type = QuestionType.Rock });
+                //questions.AddLast(new Question() { QuestionBody = "Joshua Question " + i, Type = QuestionType.Joshua });
             }
         }
 
@@ -52,13 +53,13 @@ namespace UglyTrivia
                 if (!_isGettingOutOfPenaltyBox) return;
             }
             _currentPlayer.IncrementPlayerPosition(roll, NumberOfPlacesOnBoard);
-            Console.WriteLine("The category is " + (QuestionType)(_currentPlayer.Place % 4));
+            Console.WriteLine("The category is " + (QuestionType)(_currentPlayer.Place % Question.GetNumberOfTypes()));
             AskQuestion();
         }
 
         private void AskQuestion()
         {
-            var category = (QuestionType)(_currentPlayer.Place % 4);
+            var category = (QuestionType)(_currentPlayer.Place % Question.GetNumberOfTypes());
             var dictEntry = (questions.First(x => x.Type == category));
             Console.WriteLine(dictEntry.QuestionBody);
             questions.Remove(dictEntry);
@@ -77,8 +78,6 @@ namespace UglyTrivia
             MoveNextPlayer();
             return winner;
         }
-
-        
 
         private void MoveNextPlayer()
         {
